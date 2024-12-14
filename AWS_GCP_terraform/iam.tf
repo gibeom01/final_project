@@ -162,6 +162,27 @@ resource "aws_iam_policy" "eks_role_policy" {
   })
 }
 
+resource "aws_iam_policy" "allow_list_users" {
+  name        = "AllowListUsersPolicy"
+  description = "Allow IAM ListUsers action"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "iam:ListUsers"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "attach_allow_list_users" {
+  name       = "AttachAllowListUsersPolicy"
+  users      = ["gibeom"]
+  policy_arn = aws_iam_policy.allow_list_users.arn
+}
+
 resource "aws_iam_role_policy_attachment" "eks_role_policy_attachment" {
   policy_arn = aws_iam_policy.eks_role_policy.arn
   role       = aws_iam_role.aws_eks_role.name

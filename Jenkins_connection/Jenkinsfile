@@ -1,0 +1,14 @@
+pipeline {
+    agent any
+    
+    stages {
+        
+        stage('github-clone') {
+            steps {
+                git branch: 'main', credentialsId: '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', url: 'https://github.com/gibeom01/final-project.git'
+            }
+        }
+        
+   		// stage...
+   	}
+}

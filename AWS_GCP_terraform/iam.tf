@@ -129,14 +129,10 @@ resource "aws_iam_role" "aws_eks_role" {
       {
         Action    = "sts:AssumeRole"
         Principal = {
-          Service = "eks.amazonaws.com"
-        }
-        Effect    = "Allow"
-      },
-      {
-        Action    = "sts:AssumeRole"
-        Principal = {
-          Service = "ec2.amazonaws.com"
+          Service = [
+            "eks.amazonaws.com",
+            "ec2.amazonaws.com"
+          ]
         }
         Effect    = "Allow"
       }

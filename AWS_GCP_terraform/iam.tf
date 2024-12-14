@@ -11,6 +11,7 @@ data "aws_iam_policy_document" "aws_eks_policy" {
     sid     = "EKSPermissions"
     effect  = "Allow"
     actions = [
+      "iam:CreateRole",
       "ec2:AssignPrivateIpAddresses",
       "ec2:AttachNetworkInterface",
       "ec2:AttachVolume",
@@ -102,6 +103,7 @@ data "aws_iam_policy_document" "aws_eks_policy" {
     }
   }
 }
+
 data "aws_iam_policy_document" "eks_assume_role_policy" {
   statement {
     actions   = ["sts:AssumeRole"]
@@ -111,6 +113,7 @@ data "aws_iam_policy_document" "eks_assume_role_policy" {
     }
   }
 }
+
 data "aws_iam_policy_document" "ec2_assume_role_policy" {
   statement {
     actions   = ["sts:AssumeRole"]
@@ -120,6 +123,7 @@ data "aws_iam_policy_document" "ec2_assume_role_policy" {
     }
   }
 }
+
 resource "aws_iam_role" "aws_eks_role" {
   name               = "aws-eks-role"
   assume_role_policy = jsonencode({
@@ -138,26 +142,32 @@ resource "aws_iam_role" "aws_eks_role" {
     ]
   })
 }
+
 resource "aws_iam_role_policy_attachment" "aws_eks_policy_attachment" {
   role       = aws_iam_role.aws_eks_role.name
   policy_arn = "arn:aws:iam::038462785952:policy/mysqldb-aws-eks-policy"
 }
+
 resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
   role       = aws_iam_role.aws_eks_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
+
 resource "aws_iam_role_policy_attachment" "ec2_container_registry_readonly" {
   role       = aws_iam_role.aws_eks_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
+
 resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
   role       = aws_iam_role.aws_eks_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
+
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   role       = aws_iam_role.aws_eks_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
+
 resource "aws_iam_role_policy_attachment" "eks_service_policy" {
   role       = aws_iam_role.aws_eks_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"

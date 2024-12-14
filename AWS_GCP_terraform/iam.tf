@@ -102,7 +102,6 @@ data "aws_iam_policy_document" "aws_eks_policy" {
     }
   }
 }
-
 data "aws_iam_policy_document" "eks_assume_role_policy" {
   statement {
     actions   = ["sts:AssumeRole"]

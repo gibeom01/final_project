@@ -130,6 +130,7 @@ resource "aws_iam_role" "aws_eks_role" {
     Version = "2012-10-17"
     Statement = [
       {
+        Effect    = "Allow"
         Action    = "sts:AssumeRole"
         Principal = {
           Service = [
@@ -137,15 +138,33 @@ resource "aws_iam_role" "aws_eks_role" {
             "ec2.amazonaws.com"
           ]
         }
-        Effect    = "Allow"
       }
     ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "aws_eks_policy_attachment" {
+resource "aws_iam_policy" "eks_role_policy" {
+  name        = "eks-role-policy"
+  description = "Policy to allow role creation and policy attachment"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Action    = [
+          "iam:CreateRole",
+          "iam:AttachRolePolicy",
+          "iam:PutRolePolicy"
+        ]
+        Resource  = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eks_role_policy_attachment" {
+  policy_arn = aws_iam_policy.eks_role_policy.arn
   role       = aws_iam_role.aws_eks_role.name
-  policy_arn = "arn:aws:iam::038462785952:policy/mysqldb-aws-eks-policy"
 }
 
 resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {

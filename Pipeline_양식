@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                // Git 레포지토리에서 코드를 가져오는 단계
+                 git branch: '가져올-브랜치-이름',
+                    credentialsId: '젠킨스에-Git-토큰-등록하기에서 설정한 ID',
+                    url: 'Clone할-레포지토리-주소'
+                // 우분투 환경 명령어 - sh | Windows 환경 명령어 - bat
+                bat './gradlew.bat build' 
+            }
+        }
+        stage('Test') {
+            steps {
+                // Gradle로 테스트하는 단계
+                bat 'gradlew.bat test'
+            }
+        }
+        // 해당 글에서는 EC를 연결하진 않겠습니다.
+        // stage('Deploy') {
+        //     steps {
+        //         // 
+        //     }
+        // }
+    }
+}

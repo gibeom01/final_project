@@ -5,7 +5,7 @@ pipeline {
         
         stage('github-clone') {
             steps {
-                git branch: 'main', credentialsId: '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', url: 'https://github.com/gibeom01/final-project.git'
+                git branch: 'main', credentialsId: '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', url: 'https://github.com/gibeom01/test.git'
             }
         }
         

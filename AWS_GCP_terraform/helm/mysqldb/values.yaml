@@ -1,0 +1,9 @@
+mysqlRootPassword: "root"
+mysqlDatabase: "practice_board"
+mysqlUser: "user"
+mysqlPassword: "userpassword"
+mysqlHostPath: "/mnt/data/mysql"
+storageClass: "manual"
+replicaCount: 1
+nodeSelector:
+  nodegroup-type: "backend-workloads"

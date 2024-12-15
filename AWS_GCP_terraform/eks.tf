@@ -155,7 +155,7 @@ resource "aws_eks_node_group" "tomcatwas_node_group" {
   }
 }
 
-resource "null_resource" "install_helm" {
+resource "null_resource" "install_helm_aws" {
   provisioner "local-exec" {
     command = <<-EOT
       curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3

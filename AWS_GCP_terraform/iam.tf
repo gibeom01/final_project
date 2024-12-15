@@ -104,23 +104,26 @@ data "aws_iam_policy_document" "aws_eks_policy" {
   }
 }
 
-data "aws_iam_policy_document" "eks_assume_role_policy" {
-  statement {
-    actions   = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["eks.amazonaws.com"]
-    }
-  }
-}
+resource "aws_iam_policy" "eks_role_policy" {
+  name        = "eks-role-policy"
+  description = "Policy to allow role creation and policy attachment"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Action    = [
+          "iam:CreateRole",
+          "iam:AttachRolePolicy",
+          "iam:PutRolePolicy"
+        ]
+        Resource  = "*"
+      }
+    ]
+  })
 
-data "aws_iam_policy_document" "ec2_assume_role_policy" {
-  statement {
-    actions   = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -138,25 +141,6 @@ resource "aws_iam_role" "aws_eks_role" {
             "ec2.amazonaws.com"
           ]
         }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_policy" "eks_role_policy" {
-  name        = "eks-role-policy"
-  description = "Policy to allow role creation and policy attachment"
-  policy      = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect    = "Allow"
-        Action    = [
-          "iam:CreateRole",
-          "iam:AttachRolePolicy",
-          "iam:PutRolePolicy"
-        ]
-        Resource  = "*"
       }
     ]
   })

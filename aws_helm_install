@@ -1,0 +1,84 @@
+pipeline {
+    agent any
+    environment {
+        GITHUB_URL = 'https://github.com/gibeom01/final_project.git'
+        TF_DIR = 'AWS_GCP_terraform'
+        PATH = "/opt/homebrew/bin:$PATH"
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: "${GITHUB_URL}"]])
+            }
+        }
+
+        stage('Verify and Install Terraform') {
+            steps {
+                script {
+                    // Terraform 설치 여부 확인
+                    def terraformInstalled = sh(script: 'which terraform || echo "not found"', returnStdout: true).trim()
+                    if (terraformInstalled == 'not found') {
+                        echo 'Terraform not found. Installing Terraform...'
+                        sh """
+                            curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+                            sudo apt-add-repository "deb https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+                            sudo apt-get update && sudo apt-get install terraform
+                        """
+                    } else {
+                        echo 'Terraform is already installed.'
+                    }
+                }
+            }
+        }
+
+        stage('Verify and Install AWS CLI') {
+            steps {
+                script {
+                    // AWS CLI 설치 여부 확인
+                    def awsCliInstalled = sh(script: 'which aws || echo "not found"', returnStdout: true).trim()
+                    if (awsCliInstalled == 'not found') {
+                        echo 'AWS CLI not found. Installing AWS CLI...'
+                        sh """
+                            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                            unzip awscliv2.zip
+                            sudo ./aws/install
+                        """
+                    } else {
+                        echo 'AWS CLI is already installed.'
+                    }
+                }
+            }
+        }
+
+        stage('Verify and Install Helm') {
+            steps {
+                script {
+                    // Helm 설치 여부 확인
+                    def helmInstalled = sh(script: 'which helm || echo "not found"', returnStdout: true).trim()
+                    if (helmInstalled == 'not found') {
+                        echo 'Helm not found. Installing Helm...'
+                        sh """
+                            curl -fsSL https://get.helm.sh/helm-v3.16.3-linux-amd64.tar.gz -o helm.tar.gz
+                            tar -zxvf helm.tar.gz
+                            sudo mv linux-amd64/helm /usr/local/bin/helm
+                        """
+                    } else {
+                        echo 'Helm is already installed.'
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Init and Apply') {
+            steps {
+                dir("${TF_DIR}") {
+                    sh """
+                        terraform init
+                        terraform apply -auto-approve
+                    """
+                }
+            }
+        }
+    }
+}

@@ -124,6 +124,7 @@ resource "aws_iam_policy" "eks_role_policy" {
 
   lifecycle {
     prevent_destroy = true
+    create_before_destroy = true
   }
 }
 

@@ -78,6 +78,10 @@ variable "pri_rds_sg" {
   default = "PRI-RDS-SG"
 }
 
+variable "gcp_region" {
+  default = "asia-northeast3"
+}
+
 variable "gcp_zone" {
   default = "asia-northeast3-a"
 }

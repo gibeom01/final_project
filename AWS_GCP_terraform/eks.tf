@@ -159,7 +159,7 @@ resource "null_resource" "install_helm_aws" {
   provisioner "local-exec" {
     command = <<-EOT
       curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-      chmod 700 get_helm.sh
+      chmod +x get_helm.sh
       ./get_helm.sh
     EOT
 

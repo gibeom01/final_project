@@ -35,21 +35,27 @@ resource "google_container_cluster" "nginxweb_cluster" {
   deletion_protection = false
 }
 
-resource "null_resource" "helm_install_gcp" {
+resource "null_resource" "install_helm" {
   provisioner "local-exec" {
     command = <<-EOT
-      powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -OutFile 'get-helm.ps1'; .\get-helm.ps1"
+      curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+      chmod 700 get_helm.sh
+      ./get_helm.sh
     EOT
+
+    environment = {
+      HOME = "/home/ubuntu"
+    }
   }
 }
 
-resource "null_resource" "helm_deploy_nginx" {
+resource "null_resource" "apply_nginx_yaml" {
   provisioner "local-exec" {
     command = <<-EOT
-      set PATH=%PATH%;C:\Program Files\Helm
+      gcloud container clusters get-credentials nginxweb --zone asia-northeast3 --project deep-thought-440807-g3
       helm upgrade --install nginx-release ./nginxweb-deployment.yaml
     EOT
   }
-  
-  depends_on = [google_container_cluster.nginxweb_cluster, null_resource.helm_install_gcp]
+
+  depends_on = [google_container_cluster.nginxweb_cluster, null_resource.install_helm]
 }

@@ -15,17 +15,47 @@ pipeline {
 
         stage('Verify Terraform') {
             steps {
-                sh 'which terraform'  // terraform 경로 확인
+                sh 'which terraform'
             }
         }
 
-        stage('Terraform Init and Destroy') {
+        stage('Terraform Init and Plan') {
             steps {
                 dir("${TF_DIR}") {
                     sh """
                         terraform init
-                        terraform destroy -auto-approve
+                        terraform plan -out=plan.out
                     """
+                }
+            }
+        }
+
+        stage('Check Resources in Terraform State') {
+            steps {
+                dir("${TF_DIR}") {
+                    script {
+                        def resources = sh(script: 'terraform state list', returnStdout: true).trim()
+                        if (resources == "") {
+                            echo "No resources found. Proceeding to apply new resources."
+                        } else {
+                            echo "Resources found: \n${resources}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply and Destroy') {
+            steps {
+                dir("${TF_DIR}") {
+                    script {
+                        // 리소스가 없으면 새로 생성
+                        if (sh(script: 'terraform state list', returnStdout: true).trim() == "") {
+                            sh 'terraform apply -auto-approve plan.out'
+                        } else {
+                            sh 'terraform destroy -auto-approve'
+                        }
+                    }
                 }
             }
         }

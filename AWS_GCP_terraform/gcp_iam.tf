@@ -7,9 +7,9 @@ resource "google_project_iam_binding" "service_account_user" {
   ]
 
   condition {
-    title       = "expires_after_2024_11_30"
-    description = "Expiring at midnight of 2024-11-30"
-    expression  = "request.time < timestamp(\"2024-12-01T00:00:00Z\")"
+    title       = "expires_after_2025_01_01"
+    description = "Expiring at midnight of 2025-01-01"
+    expression  = "request.time < timestamp(\"2025-01-01T00:00:00Z\")"
   }
 }
 
@@ -22,9 +22,9 @@ resource "google_project_iam_binding" "container_admin" {
   ]
 
   condition {
-    title       = "expires_after_2024_11_30"
-    description = "Expiring at midnight of 2024-11-30"
-    expression  = "request.time < timestamp(\"2024-12-01T00:00:00Z\")"
+    title       = "expires_after_2025_01_01"
+    description = "Expiring at midnight of 2025-01-01"
+    expression  = "request.time < timestamp(\"2025-01-01T00:00:00Z\")"
   }
 }
 
@@ -37,9 +37,9 @@ resource "google_project_iam_binding" "compute_admin" {
   ]
 
   condition {
-    title       = "expires_after_2024_11_30"
-    description = "Expiring at midnight of 2024-11-30"
-    expression  = "request.time < timestamp(\"2024-12-01T00:00:00Z\")"
+    title       = "expires_after_2025_01_01"
+    description = "Expiring at midnight of 2025-01-01"
+    expression  = "request.time < timestamp(\"2025-01-01T00:00:00Z\")"
   }
 }
 
@@ -52,8 +52,8 @@ resource "google_project_iam_binding" "compute_network_admin" {
   ]
 
   condition {
-    title       = "expires_after_2024_11_30"
-    description = "Expiring at midnight of 2024-11-30"
-    expression  = "request.time < timestamp(\"2024-12-01T00:00:00Z\")"
+    title       = "expires_after_2025_01_01"
+    description = "Expiring at midnight of 2025-01-01"
+    expression  = "request.time < timestamp(\"2025-01-01T00:00:00Z\")"
   }
 }

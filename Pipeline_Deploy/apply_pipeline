@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    environment {
+        GITHUB_URL = 'https://github.com/gibeom01/final_project.git'
+        TF_DIR = 'AWS_GCP_terraform'
+        PATH = "/opt/homebrew/bin:$PATH"
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: "${GITHUB_URL}"]])
+            }
+        }
+
+        stage('Verify Terraform') {
+            steps {
+                sh 'which terraform'  // terraform 경로 확인
+            }
+        }
+
+        stage('Terraform Init and Apply') {
+            steps {
+                dir("${TF_DIR}") {
+                    sh """
+                        terraform init
+                        terraform apply -auto-approve
+                    """
+                }
+            }
+        }
+    }
+}

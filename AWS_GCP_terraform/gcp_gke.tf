@@ -39,7 +39,7 @@ resource "null_resource" "install_helm_gcp" {
   provisioner "local-exec" {
     command = <<-EOT
       curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-      chmod 700 get_helm.sh
+      chmod +x get_helm.sh
       ./get_helm.sh
     EOT
 
@@ -59,3 +59,4 @@ resource "null_resource" "apply_nginx_yaml" {
 
   depends_on = [google_container_cluster.nginxweb_cluster, null_resource.install_helm_gcp]
 }
+

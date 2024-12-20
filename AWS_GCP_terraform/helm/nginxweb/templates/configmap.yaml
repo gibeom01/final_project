@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nginx-config
-data:
-  nginx.conf: |
-    {{ .Values.nginx.configMap.nginxConf }}
-  default.conf: |
-    {{ .Values.nginx.configMap.defaultConf }}

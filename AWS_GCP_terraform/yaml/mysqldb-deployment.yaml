@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysqldb-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: manual
+  hostPath:
+    path: /mnt/data/mysql
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysqldb-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: manual
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysqldb-deployment
+  labels:
+    app: mysqldb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysqldb
+  template:
+    metadata:
+      labels:
+        app: mysqldb
+    spec:
+      nodeSelector:
+        nodegroup-type: "backend-workloads"
+      initContainers:
+        - name: clean-mysqldb
+          image: busybox:1.35
+          command: ["sh", "-c", "rm -rf /var/lib/mysql/*"]
+          volumeMounts:
+            - name: mysqldb-persistent-storage
+              mountPath: /var/lib/mysql
+      containers:
+        - name: mysqldb
+          image: public.ecr.aws/docker/library/mysql:9
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root"
+            - name: MYSQL_DATABASE
+              value: "practice_board"
+            - name: MYSQL_USER
+              value: "user"
+            - name: MYSQL_PASSWORD
+              value: "userpassword"
+            - name: MYSQL_ROOT_HOST
+              value: "%"
+          volumeMounts:
+            - name: mysqldb-persistent-storage
+              mountPath: /var/lib/mysql
+            - name: init-mysqldb-script
+              mountPath: /docker-entrypoint-initdb.d/createDB.sql
+              subPath: createDB.sql
+          ports:
+            - containerPort: 3306
+          readinessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - "-u"
+                - root
+                - "-p$(MYSQL_ROOT_PASSWORD)"
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - mysql
+                - "-u"
+                - root
+                - "-p$(MYSQL_ROOT_PASSWORD)"
+                - "-e"
+                - "SELECT 1"
+            initialDelaySeconds: 60
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: mysqldb-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysqldb-pv-claim
+        - name: init-mysqldb-script
+          configMap:
+            name: init-mysqldb-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-mysqldb-config
+data:
+  createDB.sql: |
+    CREATE DATABASE IF NOT EXISTS practice_board;
+    USE practice_board;
+    CREATE TABLE IF NOT EXISTS member (
+        id VARCHAR(30) PRIMARY KEY,
+        name VARCHAR(30),
+        pwd VARCHAR(30)
+    );
+    INSERT INTO member (id, name, pwd) VALUES ('ssongCoding', 'park gibeom', 'aaaaa');
+    INSERT INTO member (id, name, pwd) VALUES ('tennisking', 'gibeom', 'bbbbb');
+    INSERT INTO member (id, name, pwd) VALUES ('programmers', 'beomki', 'ccccc');
+    CREATE TABLE IF NOT EXISTS orderlist (
+        order_id INT AUTO_INCREMENT PRIMARY KEY,
+        product_id VARCHAR(30),
+        order_date DATE
+    );
+    INSERT INTO orderlist (product_id, order_date) VALUES ('gibeom111', '2024-11-01');
+    INSERT INTO orderlist (product_id, order_date) VALUES ('gibeom222', '2024-11-02');
+    INSERT INTO orderlist (product_id, order_date) VALUES ('gibeom333', '2024-11-03');
+    INSERT INTO orderlist (product_id, order_date) VALUES ('gibeom444', '2024-11-04');
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysqldb-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+    service.beta.kubernetes.io/aws-load-balancer-security-groups: "${aws_security_group.PRI-SG.id}"
+spec:
+  selector:
+    app: mysqldb
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: LoadBalancer
+  

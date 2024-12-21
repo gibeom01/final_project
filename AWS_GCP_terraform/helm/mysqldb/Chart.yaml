@@ -1,6 +1,0 @@
-apiVersion: v2
-name: mysqldb
-description: A Helm chart for MySQL database deployment
-type: application
-version: 0.1.0
-appVersion: "8.0"

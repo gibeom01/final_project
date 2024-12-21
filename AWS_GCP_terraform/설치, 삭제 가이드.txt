@@ -1,1 +1,3 @@
 삭제 시 Kubernetes Engine API 활성화 후 삭제해야 오류 해결됨.
+
+MAC 숨긴파일 확인방법: command + shift + . 클릭 후 숨긴파일 삭제.

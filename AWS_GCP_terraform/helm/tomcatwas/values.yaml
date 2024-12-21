@@ -1,0 +1,24 @@
+persistence:
+  size: 1Gi
+  storageClass: manual
+
+nodeSelector:
+  nodegroup-type: "backend-workloads"
+
+service:
+  type: LoadBalancer
+  port: 8080
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"
+    service.beta.kubernetes.io/aws-load-balancer-security-groups: "${aws_security_group.PRI-SG.id}"
+
+tomcat:
+  image: tomcat:latest
+
+database:
+  host: "${DB_HOST}"
+  port: "${DB_PORT}"
+  name: "${DB_NAME}"
+  user: "${DB_USER}"
+  password: "${DB_PASSWORD}"

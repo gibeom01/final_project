@@ -26,7 +26,7 @@ resource "google_compute_instance" "bastion_host" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArJQ9...(생략)...key1 ubuntu"
+    ssh-keys = ""
   }
 
   tags = [
@@ -39,3 +39,4 @@ resource "google_compute_instance" "bastion_host" {
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 }
+

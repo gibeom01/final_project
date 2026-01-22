@@ -5,7 +5,7 @@ resource "tls_private_key" "aws_private_keypair" {
 
 resource "aws_key_pair" "aws_project" { 
   key_name   = "aws_project-${terraform.workspace}"
-  public_key = tls_private_key.aws_private_keypair.public_key_openssh
+  public_key = ""."".""
 
   lifecycle {
     prevent_destroy = false
@@ -17,7 +17,7 @@ resource "aws_key_pair" "aws_project" {
 }
 
 resource "local_file" "gibeom_private_key" {
-  content        = tls_private_key.aws_private_keypair.private_key_pem
+  content        = ""."".""
   filename       = "${path.root}/aws_project.pem"
   file_permission = "0600"
 
@@ -27,5 +27,5 @@ resource "local_file" "gibeom_private_key" {
 }
 
 locals {
-  encoded_private_key = base64encode(tls_private_key.aws_private_keypair.private_key_pem)
+  encoded_private_key = base64encode("".""."")
 }
